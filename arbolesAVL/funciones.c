@@ -7,6 +7,7 @@
 #include "prototipos.h"
 
 NodoAVL *mayorDeLosMenores(NodoAVL *nodo);
+void reemplazar(NodoAVL **nodo);
 
 void borrarNodo(NodoAVL **nodo)
 {
@@ -79,8 +80,7 @@ void imprimirArbol(NodoAVL *arbol)
         printf("%d\n", arbol->valor);
         if (arbol->izquierda && arbol->derecha) {
             imprimirArbolRecursivo(arbol->derecha, 1, false);
-            
-            (arbol->izquierda, 1, true);
+            imprimirArbolRecursivo(arbol->izquierda, 1, true);
         }
         else if (arbol->izquierda) {
             imprimirArbolRecursivo(arbol->izquierda, 1, true);
@@ -98,7 +98,7 @@ void imprimirArbol(NodoAVL *arbol)
  * al interior de la función.
  */
 void
-imprimirArvolRecursivo(NodoAVL *arbol, uint8_t nivel, bool closesLevel)
+imprimirArbolRecursivo(NodoAVL *arbol, uint8_t nivel, bool closesLevel)
 {
     static uint32_t activeLevelsBits = 0; /* Solo usar manipulaciones de bit a bit */
     if (arbol) {
@@ -113,14 +113,14 @@ imprimirArvolRecursivo(NodoAVL *arbol, uint8_t nivel, bool closesLevel)
         printf("%s %d\n", (closesLevel)? "└──": "├──", arbol->valor);
 
         if (arbol->izquierda && arbol->derecha) {
-            imprimirArvolRecursivo(arbol->derecha, nivel + 1, false);
-            imprimirArvolRecursivo(arbol->izquierda, nivel + 1, true);
+            imprimirArbolRecursivo(arbol->derecha, nivel + 1, false);
+            imprimirArbolRecursivo(arbol->izquierda, nivel + 1, true);
         }
         else if (arbol->izquierda) {
-            imprimirArvolRecursivo(arbol->izquierda, nivel + 1, true);
+            imprimirArbolRecursivo(arbol->izquierda, nivel + 1, true);
         }
         else if (arbol->derecha) {
-            imprimirArvolRecursivo(arbol->derecha, nivel + 1, true);
+            imprimirArbolRecursivo(arbol->derecha, nivel + 1, true);
         }
     }
 }
@@ -149,7 +149,7 @@ void setNotation (NodoAVL *raiz){
         printf ("(");
         setNotation (raiz -> izquierda);
         printf (")");
-    } else if ((raiz -> izquerda) == NULL){
+    } else if ((raiz -> izquierda) == NULL){
         printf ("(");
         setNotation (raiz -> derecha);
         printf (")");
@@ -178,13 +178,13 @@ void preorden (NodoAVL *raiz){
     }
 }
 
-void inorden (NodoAVL *arbol)
+void enorden (NodoAVL *arbol)
 {
     if (arbol != NULL)
     {
-        inorden(arbol->izquierda);
+        enorden(arbol->izquierda);
         visitarNodo(arbol);
-        inorden(arbol->derecha);
+        enorden(arbol->derecha);
     } 
 }
 
@@ -212,7 +212,7 @@ NodoAVL* rotationDerecha(NodoAVL **nodo)
     temp -> izquierda = (*nodo);
 
     (*nodo) -> altura = alturaDeNodo((*nodo));
-    temp -> izquierda = alturaDeNodo(temp);
+    temp -> altura = alturaDeNodo(temp);
 
     (*nodo) -> fe = fe((*nodo));
     temp -> fe = fe(temp);
@@ -236,14 +236,14 @@ NodoAVL* rotacionIzquierda(NodoAVL **nodo)
     
 }
 
-int fe(NodeAVL *node)
+int fe(NodoAVL *nodo)
 {
     int izquierda = alturaDeNodo(nodo -> izquierda);
     int derecha = alturaDeNodo(nodo -> derecha);
     return derecha - izquierda;
 }
 
-NodeAVL  *buscarNodo(NodoAVL *arbol, int valor)
+NodoAVL  *buscarNodo(NodoAVL *arbol, int valor)
 {
     NodoAVL *nodoEncontrado = NULL;
     if (arbol) {
@@ -307,25 +307,47 @@ NodoAVL *extraerNodo(NodoAVL **arbol, int valor)
                 (*arbol) = nodoEncontrado->izquierda;
             } else
             {
-                NodoAVL *mayorDeLosMenores, *remplazoNodo;
-                mayorDeLosMenores = mayorDeLosMenores(nodoEncontrado->izquierda);
-                remplazoNodo = nodoNuevo(mayorDeLosMenores->valor);
-
-                remplazoNodo->derecha = (*arbol)->derecha;
-                bool golIsLeftChild = (*arbol)->izquierda == mayorDeLosMenores;
-                if (golIsLeftChild) {
-                    remplazoNodo->izquierda = mayorDeLosMenores->izquierda;
-                } else {
-                    remplazoNodo->izquierda = (*arbol)->izquierda;
+                nodoEncontrado = *arbol;
+                if (nodoEncontrado->izquierda == NULL)
+                {
+                    (*arbol) = nodoEncontrado->derecha;
+                } else if (nodoEncontrado->derecha == NULL)
+                {
+                    (*arbol) = nodoEncontrado->izquierda;
+                } else
+                {
+                    reemplazar(&nodoEncontrado);
                 }
-                treeExtractNode(&(nodoEncontrado->izquierda), mayorDeLosMenores->valor);
-                nodeDelete(&(mayorDeLosMenores));
-
-                (*arbol) = remplazoNodo;
             }
         } 
     }
     return nodoEncontrado;
+}
+
+void reemplazar(NodoAVL **actual) //Mayor de los menores
+{
+    NodoAVL *nuevoActual, *actualTemporal;
+    actualTemporal = *actual;
+    nuevoActual = (*actual)->izquierda;
+
+    while (nuevoActual->derecha)
+    {
+        actualTemporal = nuevoActual;
+        nuevoActual = nuevoActual->derecha;
+    }
+
+    (*actual)->valor = nuevoActual->valor;
+    if (actualTemporal == (*actual))
+    {
+        actualTemporal->izquierda = nuevoActual->izquierda;
+    } else
+    {
+        actualTemporal->derecha = nuevoActual->izquierda;
+
+    }
+    
+    (*actual) = nuevoActual;
+    
 }
 
 
