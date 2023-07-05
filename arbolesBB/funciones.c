@@ -8,39 +8,45 @@
 
 NodoBB *mayorDeLosMenores(NodoBB *nodo);
 void reemplazar(NodoBB **nodo);
+void 	sangria(uint8_t nivel, uint32_t bitsNivelesActivos);
 
-NodoBB *nuevoNodo(int valor)
+NodoBB *
+nuevoNodo(int valor)
 {
-    NodoBB *nuevo_nodo = malloc(sizeof(*nuevo_nodo));
-    if (nuevo_nodo != NULL) {
+    NodoBB *nuevo_nodo = calloc(1, sizeof(*nuevo_nodo));
+    if (nuevo_nodo) {
         nuevo_nodo->valor = valor;
-        nuevo_nodo->derecha = NULL;
-        nuevo_nodo->izquierda = NULL;
     }
-
     return nuevo_nodo;
 }
 
-void insertarNodo(NodoBB **arbol, NodoBB *nodo)
+void
+insertarNodo(NodoBB **arbol, NodoBB *nodo)
 {
-    if (*arbol == NULL) {
-        *arbol = nodo;
-    }
-    else if (nodo->valor < (*arbol)->valor) {
-        insertarNodo(&(*arbol)->izquierda, nodo);
-    }
-    else {
-        insertarNodo(&(*arbol)->derecha, nodo);
+    if (arbol) {
+        if (*arbol) {
+            if (nodo->valor < (*arbol)->valor) {
+                insertarNodo(&(*arbol)->izquierda, nodo);
+            } else {
+                insertarNodo(&(*arbol)->derecha, nodo);
+            }
+        } else {
+            *arbol = nodo;
+        }
     }
 }
 
-void borrarNodo(NodoBB **nodo)
+void
+borrarNodo(NodoBB **nodo)
 {
-    free(*nodo);
-    *nodo = NULL;
+    if (nodo) {
+        free(*nodo);
+        *nodo = NULL;
+    }
 }
 
-void imprimirArbol(NodoBB *arbol)
+void
+imprimirArbol(NodoBB *arbol)
 {
     if (arbol) {
         printf("Notación de conjuntos: ");
@@ -68,7 +74,8 @@ void imprimirArbol(NodoBB *arbol)
  * Los niveles activos de cada árbol son guardados en una variable estática
  * al interior de la función.
  */
-void imprimirArbolRecursivo(NodoBB *arbol, uint8_t nivel, bool cierraNivel)
+void
+imprimirArbolRecursivo(NodoBB *arbol, uint8_t nivel, bool cierraNivel)
 {
     static uint32_t bitsNivelesActivos = 0; /* Solo usar manipulaciones de bit a bit */
     if (arbol) {
@@ -79,7 +86,7 @@ void imprimirArbolRecursivo(NodoBB *arbol, uint8_t nivel, bool cierraNivel)
             bitsNivelesActivos = bitsNivelesActivos | (1 << (nivel - 1));
         }
 
-        indentacion(nivel, bitsNivelesActivos);
+        sangria(nivel, bitsNivelesActivos);
         printf("%s %d\n", (cierraNivel)? "└──": "├──", arbol->valor);
 
         if (arbol->izquierda && arbol->derecha) {
@@ -94,8 +101,13 @@ void imprimirArbolRecursivo(NodoBB *arbol, uint8_t nivel, bool cierraNivel)
         }
     }
 }
-
-void indentacion(uint8_t nivel, uint32_t bitsNivelesActivos)
+/*
+ * Imprime la sangría necesaria para cada nivel del árbol al momento de
+ * imprimirse, imprime una linea en caso de que se sepa que se está dentro del
+ * nivel que se está imprimiendo.
+ */
+void
+sangria(uint8_t nivel, uint32_t bitsNivelesActivos)
 {
     bool nivelActivo;
     for (uint8_t nivelActual = 0; nivelActual < nivel - 1; nivelActual += 1) {
@@ -104,44 +116,52 @@ void indentacion(uint8_t nivel, uint32_t bitsNivelesActivos)
     }
 }
 
-void imprimirNotacion(NodoBB *raiz)
+/*
+ * Imprime la notación de conjuntos.
+ */
+void 
+imprimirNotacion(NodoBB *arbol)
 {
-    printf ("%d", raiz->valor);
-    if (((raiz->derecha) != NULL ) && ((raiz->izquierda) != NULL)){
-        printf ("(");
-        imprimirNotacion(raiz->izquierda);
-        printf (",");
-        imprimirNotacion(raiz->derecha);
-        printf (")");
-    } else if (((raiz->derecha) == NULL ) && ((raiz->izquierda) == NULL)){
-        return;
-    } else if ((raiz->derecha) == NULL){
-        printf ("(");
-        imprimirNotacion(raiz->izquierda);
-        printf (")");
-    } else if ((raiz->izquierda) == NULL){
-        printf ("(");
-        imprimirNotacion(raiz->derecha);
-        printf (")");
+    if (arbol) {
+        printf("%d", arbol->valor);
+        if (arbol->derecha && arbol->izquierda){
+            printf ("(");
+            imprimirNotacion(arbol->izquierda);
+            printf (",");
+            imprimirNotacion(arbol->derecha);
+            printf (")");
+        }
+        else if (arbol->derecha){
+            printf ("(");
+            imprimirNotacion(arbol->derecha);
+            printf (")");
+        }
+        else if (arbol->izquierda) {
+            printf ("(");
+            imprimirNotacion(arbol->izquierda);
+            printf (")");
+        }
     }
 }
 
-void visitarNodo(NodoBB *nodo){
+void
+visitarNodo(NodoBB *nodo){
     printf("%d ", nodo->valor);
 }
 
-void postorden(NodoBB *raiz)
+void
+postorden(NodoBB *raiz)
 {
-    if (raiz == NULL)
-        return;
-
-    postorden(raiz->izquierda);
-    postorden(raiz->derecha);
-    visitarNodo(raiz);
+    if (raiz) {
+        postorden(raiz->izquierda);
+        postorden(raiz->derecha);
+        visitarNodo(raiz);
+    }
 }
 
 
-void preorden(NodoBB *raiz)
+void
+preorden(NodoBB *raiz)
 {
     if (raiz) {
         visitarNodo(raiz);
@@ -150,52 +170,52 @@ void preorden(NodoBB *raiz)
     }
 }
 
-void enorden(NodoBB *arbol)
+void
+enorden(NodoBB *raiz)
 {
-    if (arbol != NULL) {
-        enorden(arbol->izquierda);
-        visitarNodo(arbol);
-        enorden(arbol->derecha);
+    if (raiz) {
+        enorden(raiz->izquierda);
+        visitarNodo(raiz);
+        enorden(raiz->derecha);
     } 
 }
 
-int alturaNodo(NodoBB *nodo)
+/*
+ * Regresa la altura del árbol/sub-árbol.
+ */
+int
+alturaArbol(NodoBB *raiz)
 {
-    if (nodo != NULL) {
+    int altura = 0;
+    if (raiz) {
         int izquierda, derecha;
-        izquierda = alturaNodo(nodo->izquierda);
-        derecha = alturaNodo(nodo->derecha);
-        if (izquierda > derecha) {
-            return izquierda + 1;
-        }
-        return derecha + 1;    
-    } else {
-        return 0;
+        izquierda = alturaArbol(raiz->izquierda);
+        derecha = alturaArbol(raiz->derecha);
+        altura = ((izquierda > derecha)? izquierda: derecha) + 1;
     }
+    return altura;
 }
 
 
 NodoBB *extraerNodoArbol(NodoBB **arbol, int valor)
 {
     NodoBB *nodoEncontrado = NULL;
-    if (*arbol) {
-        if (valor > (*arbol)->valor)
-        {
+    if (arbol && *arbol) {
+        if (valor > (*arbol)->valor) {
             nodoEncontrado = extraerNodoArbol(&(*arbol)->derecha, valor);
-        } else if (valor < (*arbol)->valor)
-        {
+        }
+        else if (valor < (*arbol)->valor) {
             nodoEncontrado = extraerNodoArbol(&(*arbol)->izquierda, valor);
-        } else
-        {
+        }
+        else {
             nodoEncontrado = *arbol;
-            if (nodoEncontrado->izquierda == NULL)
-            {
+            if (nodoEncontrado->izquierda == NULL) {
                 (*arbol) = nodoEncontrado->derecha;
-            } else if (nodoEncontrado->derecha == NULL)
-            {
+            }
+            else if (nodoEncontrado->derecha == NULL) {
                 (*arbol) = nodoEncontrado->izquierda;
-            } else
-            {
+            }
+            else {
                 reemplazar(&nodoEncontrado);
             }
         } 
@@ -203,41 +223,43 @@ NodoBB *extraerNodoArbol(NodoBB **arbol, int valor)
     return nodoEncontrado;
 }
 
-void reemplazar(NodoBB **actual) //Mayor de los menores
+/* 
+ * Reemplaza iterativamente el nodo raiz recibido por el mayor de los menores
+ * asociados con dicho árbol/sub-árbol.
+ */
+void reemplazar(NodoBB **raiz)
 {
-    NodoBB *nuevoActual, *actualTemporal;
-    actualTemporal = *actual;
-    nuevoActual = (*actual)->izquierda;
-
-    while (nuevoActual->derecha)
+    NodoBB *nodoActual, *nodoAnterior;
+    nodoAnterior = *raiz;
+    nodoActual = (*raiz)->izquierda;
+    while (nodoActual->derecha)
     {
-        actualTemporal = nuevoActual;
-        nuevoActual = nuevoActual->derecha;
+        nodoAnterior = nodoActual;
+        nodoActual = nodoActual->derecha;
     }
 
-    (*actual)->valor = nuevoActual->valor;
-    if (actualTemporal == (*actual))
+    (*raiz)->valor = nodoActual->valor;
+    if (nodoAnterior == (*raiz))
     {
-        actualTemporal->izquierda = nuevoActual->izquierda;
-    } else
+        nodoAnterior->izquierda = nodoActual->izquierda;
+    }
+    else
     {
-        actualTemporal->derecha = nuevoActual->izquierda;
+        nodoAnterior->derecha = nodoActual->izquierda;
 
     }
     
-    (*actual) = nuevoActual;
-    
+    (*raiz) = nodoActual;
 }
 
 
-NodoBB *mayorDeLosMenores(NodoBB *nodo)
+NodoBB *
+mayorDeLosMenores(NodoBB *nodo)
 {
-    NodoBB *mayor = nodo;
-    if (nodo->derecha)
-    {
-        mayor = mayorDeLosMenores(nodo->derecha);
+    if (nodo) {
+        return (nodo->derecha)? mayorDeLosMenores(nodo->derecha): nodo;
     }
-    return mayor;
+    return NULL; /* Nunca se debería de recibir un nodo nulo. */
 }
 
 NodoBB *buscarNodo(NodoBB *arbol, int valor)
@@ -280,14 +302,3 @@ int menu()
     scanf("%d", &opt);
     return opt;
 }
-
-bool is_int(char *str)
-{
-    for (uint32_t i = 0; str[i] != '\0'; i += 1) {
-        if (isdigit(str[i]) == false && str[i] != '-') {
-            return false;
-        }
-    }
-    return true;
-}
-

@@ -6,91 +6,79 @@
 #include <ctype.h>
 #include "prototipos.h"
 
+enum Opciones { 
+    ANADIR = 1, REMOVER, IMPRIMIR, PREORDEN, ENORDEN, POSTORDEN, BUSQUEDA,
+    ALTURA, SALIR
+};
 
-int main (int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
-    enum MenuOptions { 
-    ADD = 1, REMOVE, PRINT, PREORDER, INORDER, POSTORDER, SEARCH, HEIGHT, EXIT
-    };
-
-    int opt, value;
-    NodoBB *tree = NULL, *tempNode;
-    bool is_int(char *str);
-
-    if (argc > 1) {
-        NodoBB *tmp_node = nuevoNodo(0);
-        int32_t number, i;
+    int opcion, value;
+    NodoBB *arbol = NULL, *nodoTemporal;
+    if (argc) {
+        int32_t numero, i;
         for (i = 1; i < argc; i += 1) {
-            if (is_int(argv[i]) != true) {
+            if ((sscanf(argv[i], "%d", &numero))) {
+                insertarNodo(&arbol, nuevoNodo(numero));
+            } else {
                 printf("El argumento %s no es un número.\n", argv[i]);
-                continue;
             }
-
-            number = atoi(argv[i]);
-            tmp_node -> valor = number;
-            insertarNodo(&tree, tmp_node);
         }
-        borrarNodo(&tmp_node);
     }
 
     do {
-        opt = menu();
-
-        switch (opt) {
-        case ADD:
+        system("clear");
+        opcion = menu();
+        switch (opcion) {
+        case ANADIR:
             printf("Ingrese el valor del nodo a insertar: ");
             scanf("%d", &value);
-            insertarNodo(&tree, nuevoNodo(value));
+            insertarNodo(&arbol, nuevoNodo(value));
             break;
 
-        case REMOVE:
+        case REMOVER:
             printf("¿Qué nodo desea eliminar?: ");
             scanf("%d", &value);
-            tempNode = extraerNodoArbol(&tree, value);
-            if (tempNode == NULL) {
+            if ((nodoTemporal = extraerNodoArbol(&arbol, value))) {
+                printf("Nodo con valor %d eliminado.\n", value);
+                borrarNodo(&nodoTemporal);
+            } else {
                 printf("El nodo con valor %d no existe.\n", value);
             }
-            else {
-                printf("Nodo con valor %d eliminado.\n", value);
-                borrarNodo(&tempNode);
-                
-            }
             break;
 
-        case PRINT:
-            imprimirArbol(tree);
+        case IMPRIMIR:
+            imprimirArbol(arbol);
             break;
 
-        case PREORDER:
+        case PREORDEN:
             printf("Recorrido en preorden: ");
-            preorden(tree);
+            preorden(arbol);
             break;
 
-        case INORDER:
+        case ENORDEN:
             printf("Recorrido en enorden: ");
-            enorden(tree);
+            enorden(arbol);
             break;              
 
-        case POSTORDER:
+        case POSTORDEN:
             printf("Recorrido en postorden: ");
-            postorden(tree);
+            postorden(arbol);
             break;
 
-        case SEARCH:
+        case BUSQUEDA:
             printf("¿Qué valor desea buscar?: ");
             scanf("%d", &value);
-            
-
-
-            printf("El nodo con valor %d: %s.\n",value,
-                    (tempNode != NULL)? "existe": "no existe");
+            printf("El nodo con valor %d: %s.\n", value,
+                    (nodoTemporal)? "existe": "no existe");
             break; 
 
-        case HEIGHT:
-            printf("La altura del árbol es %d", alturaNodo(tree));
+        case ALTURA:
+            printf("La altura del árbol es %d", alturaArbol(arbol));
             break;
 
-        case EXIT:
+        case SALIR:
             exit(0);
             break;    
         }
@@ -99,7 +87,7 @@ int main (int argc, char *argv[])
         while (getchar() != '\n');
         while (getchar() != '\n');
 
-    } while (opt != EXIT);
+    } while (opcion != SALIR);
 
     return 0;
 }
