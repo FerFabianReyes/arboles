@@ -1,6 +1,7 @@
 #ifndef prototipos
 #define prototipos
 
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef struct NodoBB NodoBB;
@@ -11,25 +12,21 @@ struct NodoBB {
 };
 
 NodoBB  *nuevoNodo(int valor);
-void   insertarNodo(NodoBB **tree, NodoBB *nodo);
-
 void    borrarNodo(NodoBB **nodo);
-NodoBB *extraerNodoArbol(NodoBB **nodo, int valor);
 
+void    insertarNodo(NodoBB **tree, NodoBB *nodo);
+NodoBB  *extraerNodoArbol(NodoBB **nodo, int valor);
+NodoBB  *buscarNodo(NodoBB *arbol, int valor);
+int     alturaArbol(NodoBB *arbol); 
 
 void 	imprimirArbol(NodoBB *arbol);
-void 	imprimirArbolRecursivo(NodoBB *arbol, uint8_t nivel, bool cierraNivel);
 void    imprimirNotacion(NodoBB *arbol);
+void    vaciarArbol(NodoBB **raiz);
 
-void    visitarNodo(NodoBB *nodo);
 void    enorden(NodoBB *arbol);
 void    postorden(NodoBB *arbol);
 void    preorden(NodoBB *arbol);
 
-NodoBB  *buscarNodo(NodoBB *arbol, int valor);
-int     alturaArbol(NodoBB *arbol); 
 int     menu();
-
-bool es_entero(char *str);
 
 #endif

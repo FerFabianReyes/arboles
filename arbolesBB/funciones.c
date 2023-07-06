@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 #include <stdint.h>
-#include <ctype.h>
+
 #include "prototipos.h"
 
-NodoBB *mayorDeLosMenores(NodoBB *nodo);
-void reemplazar(NodoBB **nodo);
+NodoBB  *mayorDeLosMenores(NodoBB *nodo);
+void    reemplazar(NodoBB **nodo);
 void 	sangria(uint8_t nivel, uint32_t bitsNivelesActivos);
+void    visitarNodo(NodoBB *nodo);
+void 	imprimirArbolRecursivo(NodoBB *arbol, uint8_t nivel, bool cierraNivel);
 
 NodoBB *
 nuevoNodo(int valor)
@@ -18,6 +19,15 @@ nuevoNodo(int valor)
         nuevo_nodo->valor = valor;
     }
     return nuevo_nodo;
+}
+
+void
+borrarNodo(NodoBB **nodo)
+{
+    if (nodo && *nodo) {
+        free(*nodo);
+        *nodo = NULL;
+    }
 }
 
 void
@@ -33,15 +43,6 @@ insertarNodo(NodoBB **arbol, NodoBB *nodo)
         } else {
             *arbol = nodo;
         }
-    }
-}
-
-void
-borrarNodo(NodoBB **nodo)
-{
-    if (nodo) {
-        free(*nodo);
-        *nodo = NULL;
     }
 }
 
@@ -66,7 +67,6 @@ imprimirArbol(NodoBB *arbol)
         }
     }
 }
-
 
 /* 
  * Imprime cada hijo de un nodo raíz dado, la impresión es realizada
@@ -159,7 +159,6 @@ postorden(NodoBB *raiz)
     }
 }
 
-
 void
 preorden(NodoBB *raiz)
 {
@@ -189,13 +188,33 @@ alturaArbol(NodoBB *raiz)
     int altura = 0;
     if (raiz) {
         int izquierda, derecha;
-        izquierda = alturaArbol(raiz->izquierda);
-        derecha = alturaArbol(raiz->derecha);
-        altura = ((izquierda > derecha)? izquierda: derecha) + 1;
+        izquierda   = alturaArbol(raiz->izquierda);
+        derecha     = alturaArbol(raiz->derecha);
+        altura      = ((izquierda > derecha)? izquierda: derecha) + 1;
     }
     return altura;
 }
 
+/*
+ * Limpia recursivamente los nodos del árbol/sub-árbol que se recibe como
+ * como argumento.
+ */
+void
+vaciarArbol(NodoBB **raiz) 
+{
+    if (raiz && *raiz) {
+        if ((*raiz)->izquierda) {
+            vaciarArbol(&(*raiz)->izquierda);
+        }
+        if ((*raiz)->derecha) {
+            vaciarArbol(&(*raiz)->derecha);
+        }
+        /* Se borra desde los nodos hoja. */
+        if (!(*raiz)->izquierda && !(*raiz)->derecha) {
+            borrarNodo(raiz);
+        }
+    }
+}
 
 NodoBB *extraerNodoArbol(NodoBB **arbol, int valor)
 {
@@ -227,28 +246,22 @@ NodoBB *extraerNodoArbol(NodoBB **arbol, int valor)
  * Reemplaza iterativamente el nodo raiz recibido por el mayor de los menores
  * asociados con dicho árbol/sub-árbol.
  */
-void reemplazar(NodoBB **raiz)
+void
+reemplazar(NodoBB **raiz)
 {
     NodoBB *nodoActual, *nodoAnterior;
     nodoAnterior = *raiz;
     nodoActual = (*raiz)->izquierda;
-    while (nodoActual->derecha)
-    {
+    while (nodoActual->derecha) {
         nodoAnterior = nodoActual;
         nodoActual = nodoActual->derecha;
     }
-
     (*raiz)->valor = nodoActual->valor;
-    if (nodoAnterior == (*raiz))
-    {
+    if (nodoAnterior == (*raiz)) {
         nodoAnterior->izquierda = nodoActual->izquierda;
-    }
-    else
-    {
+    } else {
         nodoAnterior->derecha = nodoActual->izquierda;
-
     }
-    
     (*raiz) = nodoActual;
 }
 
@@ -278,9 +291,6 @@ NodoBB *buscarNodo(NodoBB *arbol, int valor)
     }
     return nodoEncontrado;
 }
-
-
-
 
 int menu()
 {

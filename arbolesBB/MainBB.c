@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <string.h>
-#include <ctype.h>
+
 #include "prototipos.h"
 
 enum Opciones { 
@@ -55,16 +52,19 @@ main(int argc, char *argv[])
         case PREORDEN:
             printf("Recorrido en preorden: ");
             preorden(arbol);
+            printf("\n");
             break;
 
         case ENORDEN:
             printf("Recorrido en enorden: ");
             enorden(arbol);
+            printf("\n");
             break;              
 
         case POSTORDEN:
             printf("Recorrido en postorden: ");
             postorden(arbol);
+            printf("\n");
             break;
 
         case BUSQUEDA:
@@ -75,12 +75,13 @@ main(int argc, char *argv[])
             break; 
 
         case ALTURA:
-            printf("La altura del árbol es %d", alturaArbol(arbol));
+            printf("La altura del árbol es %d.\n", alturaArbol(arbol));
             break;
 
         case SALIR:
+            vaciarArbol(&arbol);
             exit(0);
-            break;    
+            break;
         }
 
         printf("Presione Enter para continuar...");
@@ -88,6 +89,5 @@ main(int argc, char *argv[])
         while (getchar() != '\n');
 
     } while (opcion != SALIR);
-
     return 0;
 }
