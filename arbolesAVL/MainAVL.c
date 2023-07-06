@@ -1,102 +1,93 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdint.h>
-#include <ctype.h>
+
 #include "prototipos.h"
 
-int main (int argc, char *argv[])
+enum Opciones { 
+    ANADIR = 1, REMOVER, IMPRIMIR, PREORDEN, ENORDEN, POSTORDEN, BUSQUEDA,
+    ALTURA, SALIR
+};
+
+int
+main(int argc, char *argv[])
 {
-    enum MenuOptions { 
-    ADD = 1, REMOVE, PRINT, PREORDER, INORDER, POSTORDER, SEARCH, HEIGHT, EXIT
-    };
-
-    int opt, valor;
-    NodoAVL *arbol = NULL, *tempNodo;
-    bool is_int(char *str);
-
-    if (argc > 1) {
-        NodoAVL *tmp_nodo = nodoNuevo(0);
-        int32_t number, i;
+    int opcion, value;
+    NodoAVL *arbol = NULL, *nodoTemporal;
+    if (argc) {
+        int32_t numero, i;
         for (i = 1; i < argc; i += 1) {
-            if (is_int(argv[i]) != true) {
+            if ((sscanf(argv[i], "%d", &numero))) {
+                insertarNodo(&arbol, nodoCrear(numero));
+            } else {
                 printf("El argumento %s no es un número.\n", argv[i]);
-                continue;
             }
-
-            number = atoi(argv[i]);
-            tmp_nodo->valor = number;
-            insertarNodo(&arbol, tmp_nodo);
         }
-       // nodeDelete(&tmp_node);
     }
 
     do {
-        opt =menu();
-
-        switch (opt) {
-        case ADD:
+        system("clear");
+        opcion = menu();
+        switch (opcion) {
+        case ANADIR:
             printf("Ingrese el valor del nodo a insertar: ");
-            scanf("%d", &valor);
-            insertarNodo(&arbol, nodoNuevo(valor));
+            scanf("%d", &value);
+            insertarNodo(&arbol, nodoCrear(value));
             break;
 
-        case REMOVE:
+        case REMOVER:
             printf("¿Qué nodo desea eliminar?: ");
-            scanf("%d", &valor);
-            tempNodo = extraerNodo(&arbol, valor);
-            
-            if (tempNodo == NULL) {
-                printf("El nodo con valor %d no existe.\n", valor);
-            }
-            else {
-                borrarNodo(&tempNodo);
-                printf("Nodo con valor %d eliminado.\n", valor);
+            scanf("%d", &value);
+            if ((nodoTemporal = extraerNodoArbol(&arbol, value))) {
+                printf("Nodo con valor %d eliminado.\n", value);
+                borrarNodo(&nodoTemporal);
+            } else {
+                printf("El nodo con valor %d no existe.\n", value);
             }
             break;
 
-        case PRINT:
-           imprimirArbol(arbol);
+        case IMPRIMIR:
+            imprimirArbol(arbol);
             break;
 
-        case PREORDER:
+        case PREORDEN:
             printf("Recorrido en preorden: ");
             preorden(arbol);
+            printf("\n");
             break;
 
-        case INORDER:
+        case ENORDEN:
             printf("Recorrido en enorden: ");
             enorden(arbol);
+            printf("\n");
             break;              
 
-        case POSTORDER:
+        case POSTORDEN:
             printf("Recorrido en postorden: ");
             postorden(arbol);
+            printf("\n");
             break;
 
-        case SEARCH:
+        case BUSQUEDA:
             printf("¿Qué valor desea buscar?: ");
-            scanf("%d", &valor);
-            tempNodo = buscarNodo(arbol, valor);
-            printf("El nodo con valor %d: %s.\n",valor,
-                    (tempNodo != NULL)? "existe": "no existe");
+            scanf("%d", &value);
+            printf("El nodo con valor %d: %s.\n", value,
+                    (nodoTemporal)? "existe": "no existe");
             break; 
 
-        case HEIGHT:
-            printf("La altura del árbol es %d", alturaDeNodo(arbol));
+        case ALTURA:
+            printf("La altura del árbol es %d.\n", alturaArbol(arbol));
             break;
 
-        case EXIT:
+        case SALIR:
+            vaciarArbol(&arbol);
             exit(0);
-            break;    
+            break;
         }
 
         printf("Presione Enter para continuar...");
         while (getchar() != '\n');
         while (getchar() != '\n');
 
-    } while (opt != EXIT);
-
+    } while (opcion != SALIR);
     return 0;
 }

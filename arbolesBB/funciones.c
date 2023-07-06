@@ -146,7 +146,9 @@ imprimirNotacion(NodoBB *arbol)
 
 void
 visitarNodo(NodoBB *nodo){
-    printf("%d ", nodo->valor);
+    if (nodo) {
+        printf("%d ", nodo->valor);
+    }
 }
 
 void

@@ -1,40 +1,37 @@
 #ifndef prototipos
 #define prototipos
 
+#include <stdbool.h>
+#include <stdint.h>
+
 typedef struct NodoAVL NodoAVL;
 struct NodoAVL {
 	int valor;
-    int fe;
-    int altura;
+    int factorEquilibrio;
 	NodoAVL *derecha;
     NodoAVL *izquierda;
 };
 
-NodoAVL *insertarNodo(NodoAVL **arbol, NodoAVL *nodo);
-NodoAVL *nodoNuevo(int valor);
-
+NodoAVL *nodoCrear(int valor);
 void    borrarNodo(NodoAVL **nodo);
-NodoAVL *extraerNodo(NodoAVL **nodo, int valor);
 
-void    imprimirArbol(NodoAVL *arbol);
-void 	indentation(uint8_t nivel, uint32_t activeLevelsBits);
-void 	imprimirArbolRecursivo(NodoAVL *arbol, uint8_t nivel, bool closesLevel);
+void    insertarNodo(NodoAVL **arbol, NodoAVL *nodo);
+NodoAVL *extraerNodoArbol(NodoAVL **nodo, int valor);
+NodoAVL *buscarNodo(NodoAVL *arbol, int valor);
+int     alturaArbol(NodoAVL *arbol); 
 
-void    setNotation(NodoAVL *arbol);
+void 	imprimirArbol(NodoAVL *arbol);
+void    imprimirNotacion(NodoAVL *arbol);
+void    vaciarArbol(NodoAVL **raiz);
 
-void    visitarNodo(NodoAVL *nodo);
-void    enorden (NodoAVL *arbol);
+void    enorden(NodoAVL *arbol);
 void    postorden(NodoAVL *arbol);
 void    preorden(NodoAVL *arbol);
 
-NodoAVL  *buscarNodo(NodoAVL *arbol, int valor);
-int     alturaDeNodo(NodoAVL *arbol); 
-
+int     menu();
 NodoAVL* rotacionIzquierda(NodoAVL **nodo);
 NodoAVL* rotationDerecha(NodoAVL **nodo);
-int fe(NodoAVL *nodo);
-int     menu();
-bool is_int(char *str);
+
 #endif
 
 
